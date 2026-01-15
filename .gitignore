@@ -123,11 +123,11 @@ artifacts/
 # Data Files
 # ==============================================
 # CSV, JSON, Parquet data files (can be large)
-*.csv
-*.json
-*.parquet
-*.avro
-*.orc
+#*.csv
+#*.json
+#*.parquet
+#*.avro
+#*.orc
 
 # Compressed archives
 *.zip

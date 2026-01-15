@@ -1,0 +1,100 @@
+{
+  "name": "DSAS 2025 - Apache Spark Learning Environment",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11-bullseye",
+
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "11",
+      "installMaven": false
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11",
+      "installJupyterlab": true,
+      "configureJupyterlabAllowOrigin": "*"
+    }
+  },
+
+  "containerEnv": {
+    "SPARK_HOME": "/opt/spark",
+    "JAVA_HOME": "/usr/local/sdkman/candidates/java/current",
+    "PYSPARK_PYTHON": "/workspaces/data_science_at_scale/.venv/bin/python3",
+    "PYSPARK_DRIVER_PYTHON": "/workspaces/data_science_at_scale/.venv/bin/python3",
+    "PYTHONPATH": "/opt/spark/python:/opt/spark/python/lib/py4j-0.10.9.7-src.zip",
+    "SPARK_OPTS": "--driver-memory=6g --driver-cores=4 --executor-memory=4g --executor-cores=4",
+    "SPARK_LOCAL_IP": "127.0.0.1",
+    "SPARK_DRIVER_HOST": "127.0.0.1"
+  },
+
+  "onCreateCommand": [
+    "bash",
+    ".devcontainer/setup.sh"
+  ],
+
+  "postCreateCommand": [
+    "bash",
+    ".devcontainer/post-create.sh"
+  ],
+
+  "postStartCommand": [
+    "bash",
+    ".devcontainer/startup.sh"
+  ],
+
+  "forwardPorts": [
+    8888,
+    4040
+  ],
+
+  "portsAttributes": {
+    "8888": {
+      "label": "Jupyter Lab",
+      "onAutoForward": "openBrowser"
+    },
+    "4040": {
+      "label": "Spark UI",
+      "onAutoForward": "ignore"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.vscode-jupyter-powertoys",
+        "ms-vscode.vscode-json",
+        "redhat.vscode-yaml",
+        "ms-vscode-remote.remote-containers"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/workspaces/data_science_at_scale/.venv/bin/python3",
+        "python.terminal.activateEnvironment": true,
+        "jupyter.askForKernelRestart": false,
+        "jupyter.alwaysTrustNotebooks": true,
+        "files.associations": {
+          "*.ipynb": "jupyter-notebook"
+        }
+      }
+    }
+  },
+
+  "remoteUser": "vscode",
+  "workspaceFolder": "/workspaces/data_science_at_scale",
+
+  "mounts": [
+    "source=codespace-spark-cache,target=/opt/spark-cache,type=volume"
+  ],
+
+  "runArgs": [
+    "--memory=16g",
+    "--cpus=4"
+  ],
+
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "16gb",
+    "storage": "32gb"
+  },
+
+  "shutdownAction": "stopContainer"
+}
