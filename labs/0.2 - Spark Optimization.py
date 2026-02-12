@@ -137,7 +137,7 @@ print("✅ Verification utilities loaded")
 
 from pyspark.sql.functions import col
 
-transactions_df =
+transactions_df = spark.table("samples.bakehouse.sales_transactions")
 
 # Apply multiple filters (some redundant)
 slow_query_df = (transactions_df
@@ -175,7 +175,7 @@ print("📝 Note: Look at the 'Optimized Logical Plan' - Catalyst consolidated t
 
 (transactions_df
  .write
- .partitionBy(  )  # Which column to partition by?
+ .partitionBy("franchiseID")  # Which column to partition by?
  .format("delta")
  .mode("overwrite")
  .save(f"{working_dir}/transactions_partitioned")
@@ -184,7 +184,7 @@ print("📝 Note: Look at the 'Optimized Logical Plan' - Catalyst consolidated t
 # Read with filter - Spark will only read relevant partitions
 filtered_df = spark.read.format("delta").load(
     f"{working_dir}/transactions_partitioned"
-).filter(  )  # Filter condition: col("franchiseID") == 3000033
+).filter(col("franchiseID") == 3000033)  # Filter condition: col("franchiseID") == 3000033
 
 # Display the execution plan
 filtered_df.explain(True)
@@ -227,8 +227,8 @@ print(f"Filtered result: {slow_join_df.count()} rows")
 # 1. Filter franchises_df where country == "USA"
 # 2. Join transactions_df with filtered franchises on "franchiseID"
 
-fast_franchises_df = franchises_df.filter(  )  # Filter condition for USA
-fast_join_df = transactions_df.join(  ,  )  # Join with filtered DataFrame, join column
+fast_franchises_df = franchises_df.filter(col("country") == "USA")  # Filter condition for USA
+fast_join_df = transactions_df.join(fast_franchises_df, "franchiseID")  # Join with filtered DataFrame, join column
 
 print(f"\nEfficient approach joins with only {fast_franchises_df.count()} franchises")
 print(f"Same filtered result: {fast_join_df.count()} rows")
