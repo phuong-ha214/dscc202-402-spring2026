@@ -797,40 +797,40 @@ from pyspark.sql.functions import current_timestamp, sum, count, approx_count_di
 
 # Create streaming source with watermark
 streaming_df = (spark.readStream
-    .format(  )  # Delta format
-    .load(  )  # Path to streaming source
-    .withWatermark(  ,  )  # Column name and watermark interval
+    .format("delta")  # Delta format
+    .load(f"{working_dir}/streaming_source")  # Path to streaming source
+    .withWatermark("dateTime", "10 minutes")  # Column name and watermark interval
 )
 
 # Metric 1: Running total sales by franchise
 running_total_df = (streaming_df
-    .groupBy(  )  # Column to group by
+    .groupBy("franchiseID")  # Column to group by
     .agg(
-        sum(  ).alias("total_sales"),  # Column to sum
-        count(  ).alias("total_transactions"),  # Column to count
-        approx_count_distinct(  ).alias("unique_customers")  # Column for distinct count
+        sum("totalPrice").alias("total_sales"),  # Column to sum
+        count("*").alias("total_transactions"),  # Column to count
+        approx_count_distinct("customerID").alias("unique_customers")  # Column for distinct count
     )
 )
 
 # Metric 2: Hourly sales trends
 hourly_trends_df = (streaming_df
     .groupBy(
-        window(col(  ),  ),  # Column and window duration
-        col(  )  # Additional grouping column
+        window(col("dateTime"), "1 hour"),  # Column and window duration
+        col("franchiseID")  # Additional grouping column
     )
     .agg(
-        sum(  ).alias("hourly_sales"),  # Column to sum
-        count(  ).alias("hourly_transactions")  # Column to count
+        sum("totalPrice").alias("hourly_sales"),  # Column to sum
+        count("*").alias("hourly_transactions")  # Column to count
     )
 )
 
 # Metric 3: Traffic source performance
 traffic_performance_df = (streaming_df
-    .groupBy(  )  # Column to group by
+    .groupBy("traffic_source")  # Column to group by
     .agg(
-        sum(  ).alias("source_revenue"),  # Column to sum
-        count(  ).alias("source_transactions"),  # Column to count
-        avg(  ).alias("source_avg_value")  # Column to average
+        sum("totalPrice").alias("source_revenue"),  # Column to sum
+        count("*").alias("source_transactions"),  # Column to count
+        avg("totalPrice").alias("source_avg_value")  # Column to average
     )
 )
 
@@ -838,29 +838,29 @@ traffic_performance_df = (streaming_df
 # IMPORTANT: Use "complete" for non-windowed aggregations, "append" for windowed aggregations
 query1 = (running_total_df
     .writeStream
-    .format(  )  # Delta format
-    .outputMode(  )  # Complete mode for non-windowed
-    .option("checkpointLocation",  )  # Checkpoint path
-    .trigger(  )  # availableNow=True
-    .start(  )  # Output path
+    .format("delta")  # Delta format
+    .outputMode("complete")  # Complete mode for non-windowed
+    .option("checkpointLocation", f"{checkpoint_dir}/dashboard_running_total")  # Checkpoint path
+    .trigger(availableNow=True)  # availableNow=True
+    .start(f"{working_dir}/dashboard_running_total")  # Output path
 )
 
 query2 = (hourly_trends_df
     .writeStream
-    .format(  )  # Delta format
-    .outputMode(  )  # Append mode for windowed
-    .option("checkpointLocation",  )  # Checkpoint path
-    .trigger(  )  # availableNow=True
-    .start(  )  # Output path
+    .format("delta")  # Delta format
+    .outputMode("append")  # Append mode for windowed
+    .option("checkpointLocation", f"{checkpoint_dir}/dashboard_hourly_trends")  # Checkpoint path
+    .trigger(availableNow=True)  # availableNow=True
+    .start(f"{working_dir}/dashboard_hourly_trends")  # Output path
 )
 
 query3 = (traffic_performance_df
     .writeStream
-    .format(  )  # Delta format
-    .outputMode(  )  # Complete mode for non-windowed
-    .option("checkpointLocation",  )  # Checkpoint path
-    .trigger(  )  # availableNow=True
-    .start(  )  # Output path
+    .format("delta")  # Delta format
+    .outputMode("complete")  # Complete mode for non-windowed
+    .option("checkpointLocation", f"{checkpoint_dir}/dashboard_traffic_performance")  # Checkpoint path
+    .trigger(availableNow=True)  # availableNow=True
+    .start(f"{working_dir}/dashboard_traffic_performance")  # Output path
 )
 
 # Monitor all queries
