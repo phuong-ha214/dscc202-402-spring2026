@@ -52,7 +52,7 @@ spark.conf.set("spark.sql.legacy.timeParserPolicy", "LEGACY")
 # TODO: Create streaming table definition
 dp.create_streaming_table(
     name="tweets_bronze",
-    comment="Raw ingested tweets data (Bronze layer) from streaming source"
+    comment="Raw ingested tweets data from streaming source"
 )
 
 # COMMAND ----------
