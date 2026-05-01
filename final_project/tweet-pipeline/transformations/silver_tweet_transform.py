@@ -92,7 +92,7 @@ find_mentions_udf = udf(find_mentions, ArrayType(StringType()))
 
 # TODO: Define append_flow function for silver transformation
 @dp.append_flow(target="tweets_silver")
-def transform_tweets():
+def silver_transform():
     return (spark.readStream.table("tweets_bronze")
             # Removes @mentions from text
             .withColumn("cleaned_text", regexp_replace("text", r"@\S+", ""))
