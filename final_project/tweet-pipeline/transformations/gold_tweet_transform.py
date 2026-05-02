@@ -138,11 +138,13 @@ def gold_transform():
             # Creates binary sentiment_id
             .withColumn("sentiment_id",
                         when(col("sentiment") == "0", 0)
-                        .when(col("sentiment") == "4", 1))
+                        .when(col("sentiment") == "4", 1)
+                        .otherwise(0))
             # Creates binary predicted_sentiment_id
             .withColumn("predicted_sentiment_id",
                         when(col("predicted_sentiment") == "negative", 0)
-                        .when(col("predicted_sentiment") == "positive", 1))
+                        .when(col("predicted_sentiment") == "positive", 1)
+                        .otherwise(0))
             .select("timestamp", "mention", "cleaned_text", "text", "sentiment", "predicted_score", "predicted_sentiment", "sentiment_id", "predicted_sentiment_id")
     )
 
